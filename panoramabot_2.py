@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import telebot
 import random
+import time
 
 
 def count(soup, REL):
@@ -22,7 +23,8 @@ def panorama_article(user):
     unpretty_text = page.text
     soup = BeautifulSoup(unpretty_text, 'html.parser')
     article_url = soup('a', rel = 'bookmark')[random.randrange(count(soup, 'bookmark'))]['href']
-    while article_url in notthesame[user]:
+    start = time.time()
+    while article_url in notthesame[user] and time.time() - start < 1:    #чтобы не было бесконечного цикла, ограничение -- 1 сек
         article_url = soup('a', rel = 'bookmark')[random.randrange(count(soup, 'bookmark'))]['href']
     notthesame[user].append(article_url)
     new_page_text = requests.get(article_url).text
@@ -48,7 +50,7 @@ def get_text_messages2(message):
             notthesame[user] = []
         bot.send_message(message.chat.id, panorama_article(user))
     #elif: 
-        #re.fullmatch('[�-��-߸�]+', ()):
+        #re.fullmatch('[à-ÿÀ-ß¸¨]+', ()):
         #bot.send_message(message.chat.id, panorama_suitable_articles('https://panorama.pub/?s=' + message.text.replace(' ', '+')))
     else:
         bot.reply_to(message, 'text me PANORAMA')
